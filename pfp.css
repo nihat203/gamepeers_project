@@ -1,0 +1,21 @@
+.pfp {
+    display: inline-block;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+  }
+  
+  .pfp20 {
+    display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+  }

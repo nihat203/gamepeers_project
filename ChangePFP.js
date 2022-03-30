@@ -1,12 +1,13 @@
 import React, { useState } from 'react'
-import { db,storage } from './firebase';
-import { serverTimestamp } from "firebase/firestore";
+import { db, storage } from './firebase';
+import "./imageUpload.css";
+import "./button-7.css"
+import "./pfp.css"
 import Modal from "react-modal";
 
-function StoryUpload({username}) {
+function ChangePFP({user}) {
     const [image, setImage] = useState(null);
-    const [progress, setProgress] = useState(0);
-    
+    const [progress, setProgress] = useState(0);    
 
     const handleChange = (e) => {
         if (e.target.files[0]) {
@@ -15,7 +16,9 @@ function StoryUpload({username}) {
     };
 
     const handleUpload = () => {
-        const uploadTask = storage.ref(`images/${image.name}`).put(image);
+        
+        const uploadTask = storage.ref(`pfp/${image.name}`).put(image);
+
         uploadTask.on(
             "state_changed",
             (snapshot) => {
@@ -30,49 +33,49 @@ function StoryUpload({username}) {
             },
             () => {
                 storage
-                    .ref("images")
+                    .ref("pfp")
                     .child(image.name)
                     .getDownloadURL()
                     .then(url => {
-                        db.collection("stories").add({
-                            timestamp: serverTimestamp(),
-                            imageUrl: url,
-                            username: username
-                        });
-
+                        user.updateProfile({
+                            photoURL: url
+                          })
+                        db.collection("userpfp").doc(user.displayName).set({photourl: url});
                         setProgress(0);
                         setImage(null);
                     })
             }
+
         )
+
     }
 
     Modal.setAppElement("#root"); 
 
-    const [isOpen6, setIsOpen6] = useState(false);
+    const [isOpen2, setIsOpen2] = useState(false);
 
-    function toggleModal6() {
-      setIsOpen6(!isOpen6);
+    function toggleModal2() {
+      setIsOpen2(!isOpen2);
     }
 
     return (
         <a>
-            <button onClick={toggleModal6} className='button-6'>Upload Story</button>
+            <button className='button-7' onClick={toggleModal2}>Change Profile Picture</button>
                           <Modal
-                            isOpen={isOpen6}
-                            onRequestClose={toggleModal6}
+                            isOpen={isOpen2}
+                            onRequestClose={toggleModal2}
                             contentLabel="My dialog"
                             className="mymodal"
                             overlayClassName="myoverlay"
                             closeTimeoutMS={250}>
                 <progress value={progress} max="100" /><br/>
                 <input type='file' className='button-7' onChange={handleChange}/><br/>
-                <input type='submit' className='button-7' value='Upload' onClick={handleUpload}/>
+                <input type='submit' value='Upload' className='button-7' onClick={handleUpload}/>
                 <br/>
-                <button onClick={toggleModal6} className='button-7'>Close</button>
+                <button className='button-7' onClick={toggleModal2}>Close</button>
                           </Modal>
                           </a>
     )
 }
 
-export default StoryUpload
+export default ChangePFP

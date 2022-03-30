@@ -2,6 +2,8 @@ import React, { useState } from 'react'
 import { db,storage } from './firebase';
 import { serverTimestamp } from "firebase/firestore";
 import "./imageUpload.css";
+import "./button-7.css"
+import "./inputtext.css"
 import Modal from "react-modal";
 
 function ImageUpload({username}) {
@@ -30,6 +32,7 @@ function ImageUpload({username}) {
                 console.log(error);
                 alert(error.message);
             },
+            
             () => {
                 storage
                     .ref("images")
@@ -42,7 +45,6 @@ function ImageUpload({username}) {
                             imageUrl: url,
                             username: username
                         });
-
                         setProgress(0);
                         setCaption("");
                         setImage(null);
@@ -61,7 +63,7 @@ function ImageUpload({username}) {
 
     return (
         <a>
-            <button onClick={toggleModal2}>Upload Image/Video</button>
+            <button className='button-6' onClick={toggleModal2}>Upload Image/Video</button>
                           <Modal
                             isOpen={isOpen2}
                             onRequestClose={toggleModal2}
@@ -70,11 +72,11 @@ function ImageUpload({username}) {
                             overlayClassName="myoverlay"
                             closeTimeoutMS={250}>
                 <progress value={progress} max="100" /><br/>
-                <input type='text' placeholder='Enter a caption' onChange={event => setCaption(event.target.value)}/><br/>
-                <input type='file' onChange={handleChange}/><br/>
-                <input type='submit' value='Upload' onClick={handleUpload}/>
+                <input type='text' className='inputtext' placeholder='Enter a caption' onChange={event => setCaption(event.target.value)}/><br/>
+                <input type='file' className='button-7' onChange={handleChange}/><br/>
+                <input type='submit' value='Upload' className='button-7' onClick={handleUpload}/>
                 <br/>
-                <button onClick={toggleModal2}>Close</button>
+                <button onClick={toggleModal2} className='button-7'>Close</button>
                           </Modal>
                           </a>
     )
