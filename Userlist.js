@@ -3,14 +3,16 @@ import "./button-7.css"
 import { db } from './firebase';
 import { serverTimestamp } from "firebase/firestore";
   
-function Userlist( {user, username, lastlogin, fl } ) {
+function Userlist( {user, username, lastlogin, fl, gg } ) {
   const follow = (event) => {
     event.preventDefault();
     db.collection('follow').doc('following').collection(user.displayName).doc(username).set({timestamp:serverTimestamp()})
+    db.collection('follow').doc('followers').collection(username).doc(user.displayName).set({timestamp:serverTimestamp()})
   }
   const unfollow = (event) => {
     event.preventDefault();
     db.collection('follow').doc('following').collection(user.displayName).doc(username).delete()
+    db.collection('follow').doc('followers').collection(username).doc(user.displayName).delete()
   }
     function timeDifference(date1,date2) {
         var difference = date2 - date1;
@@ -67,7 +69,7 @@ function Userlist( {user, username, lastlogin, fl } ) {
             </button>)
             : (
             <button
-            className="button-6"
+            className="button-r"
             type='submit'
             onClick={unfollow}>
               Unfollow
@@ -76,8 +78,11 @@ function Userlist( {user, username, lastlogin, fl } ) {
           
           </td>
           
-          <td>&nbsp;&nbsp;&nbsp;   {(timeDifference(lastlogin.seconds*1000, dt)).toString()}</td>
-          
+          { gg === 1 ? (
+          <td>&nbsp;&nbsp;&nbsp;   {(timeDifference(lastlogin.seconds*1000, dt)).toString()}</td>):(
+            <div></div>
+          )
+          }
           
           </tr>
     )

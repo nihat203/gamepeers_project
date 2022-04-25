@@ -17,6 +17,7 @@ import Modal from "react-modal";
 import firebase from "firebase/compat/app";
 import { serverTimestamp } from "firebase/firestore";
 import Userlist from './Userlist'
+import styles from './mystyle.module.css'
 
 function App() {
   
@@ -62,9 +63,10 @@ function App() {
         displayName: username,
         photoURL: 'https://firebasestorage.googleapis.com/v0/b/projecc-af5ce.appspot.com/o/sitedata%2Fd.570462.30244.s3.1-f5f5f5-bm9uZQ-800x800.jpg?alt=media&token=224edbd3-7c36-4374-98cb-32a03d43cc6e'
       });
-      db.collection("userpfp").doc(auth.currentUser.displayName).set({photourl: 'https://firebasestorage.googleapis.com/v0/b/projecc-af5ce.appspot.com/o/sitedata%2Fd.570462.30244.s3.1-f5f5f5-bm9uZQ-800x800.jpg?alt=media&token=224edbd3-7c36-4374-98cb-32a03d43cc6e'});
-      auth.signOut();
-      alert("Please, verify your email!");
+      db.collection("userpfp").doc(username).set({photourl: "https://firebasestorage.googleapis.com/v0/b/projecc-af5ce.appspot.com/o/sitedata%2Fd.570462.30244.s3.1-f5f5f5-bm9uZQ-800x800.jpg?alt=media&token=224edbd3-7c36-4374-98cb-32a03d43cc6e"});
+      sleep(1000).then(() => {
+      auth.signOut();});
+      alert(username + ", please verify your email!");
     })
     .catch((error) => alert(error.message));
    }
@@ -94,7 +96,9 @@ function App() {
         // alert(user.customClaims.phone)
       } else {
         auth.signOut();
-        alert("Email is not verified!")
+        sleep(500).then(() => {
+          alert("Email is not verified!");});
+        
       }
     })
     .catch((error) => alert(error.message));
@@ -224,7 +228,8 @@ function App() {
     })
   }, []);
 
-
+  
+  const [following,setFollowing] = useState(0);
   const [userss, setUserss] = useState([]);
   
     useEffect(() => {
@@ -250,10 +255,13 @@ function App() {
               })}
             })
             setUserss(ysers);
+            setFollowing(cfollowing.length);
             })  
         })
 
       }, []);
+
+
 
  
   useEffect(() => {
@@ -264,6 +272,9 @@ function App() {
       })));
     })
   }, []); 
+
+  function unregister()
+  {firebase.auth().currentUser.delete()}
 
 
       Modal.setAppElement("#root");
@@ -288,6 +299,12 @@ function App() {
         const [isOpen103, setIsOpen103] = useState(false);
         function toggleModal103() {
           setIsOpen103(!isOpen103);      }
+          const [isOpen1102, setIsOpen1102] = useState(false);
+        function toggleModal1102() {
+          setIsOpen1102(!isOpen1102);      }
+          const [isOpen1022, setIsOpen1022] = useState(false);
+        function toggleModal1022() {
+          setIsOpen1022(!isOpen1022);      }
         /* 
       const [newname, setNewname] = useState('');
 
@@ -381,13 +398,41 @@ function App() {
 
 
       const [inputText, setInputText] = useState("");
-      
   let inputHandler = (e) => {
     var lowerCase = e.target.value.toLowerCase();
     setInputText(lowerCase);
   };
+  const [inputText1, setInputText1] = useState("");
+  let inputHandler1 = (e) => {
+    var lowerCase1 = e.target.value.toLowerCase();
+    setInputText1(lowerCase1);
+  };
+  const [inputText2, setInputText2] = useState("");
+  let inputHandler2 = (e) => {
+    var lowerCase2 = e.target.value.toLowerCase();
+    setInputText2(lowerCase2);
+  };
 
-  
+
+
+  const [followers,setFollowers] = useState([])
+
+  useEffect(() => {
+
+    db.collection('users').orderBy('timestamp','desc').onSnapshot(snapshot => {
+
+  db.collection('follow').doc('followers').collection(auth.currentUser.displayName).onSnapshot(snp => {
+        const eee = [];
+        snp.docs.forEach(doc => 
+        {eee.push( doc.id )})
+        setFollowers(eee);})
+        })
+      
+      }, []);
+
+
+
+
 
   return (
     <div className="App">
@@ -413,16 +458,91 @@ function App() {
                             //className="mymodal"
                             overlayClassName="myoverlay"
                             closeTimeoutMS={250}>
-                              <button className="button-7" onClick={toggleModal102}>Close</button>
+                              <br/>
+                              <button className="button-r" onClick={toggleModal102}>Close</button>
                               <br/><br/>
                               <center>
                               <h1>My Profile: </h1>
                               <br/>
-                              <img src={user.photoURL} className='pfp'/><h3>{user.displayName}</h3></center>
+                              <img src={user.photoURL} className='pfp'/><h3>{user.displayName}</h3>
+                              
+
+                              <button className="button-6" onClick={toggleModal1102}>{followers.length}&nbsp;Followers</button>
+                              <Modal
+                            isOpen={isOpen1102}
+                            onRequestClose={toggleModal1102}
+                            contentLabel="My dialog"
+                            className="mymodal"
+                            overlayClassName="myoverlay"
+                            closeTimeoutMS={250}>
+
+                                          <div className='search'>
+                                          <input type = 'text' className='inputtext' onChange={inputHandler2} placeholder='Search'/>
+                                          <table>{
+
+                                                userss.map(({id, data, p}) => (
+                                                  (() => {
+                                                    if(id.toLowerCase().includes(inputText2) && auth.currentUser.displayName !== id && followers.includes(id)){
+                                                    return (
+                                                
+                                                    <Userlist key={id} user={auth.currentUser} username={id} lastlogin={data.timestamp} fl={p} gg={0}></Userlist>
+                                                    
+                                                    )
+                                                  }
+                                                  
+                                                  
+                                                  else
+                                                  
+                                                  {
+                                                    
+                                                    return (<div></div>)
+                                                  
+                                                  }
+                                                  
+                                                  })()))} 
+
+
+                                          </table>
+                                          </div>
+                              
+                            <button className="button-r" onClick={toggleModal1102}>Close</button>
+                            </Modal>
+
+                            <button className="button-6" onClick={toggleModal1022}>{following-1}&nbsp;Following</button>
+                            <Modal
+                            isOpen={isOpen1022}
+                            onRequestClose={toggleModal1022}
+                            contentLabel="My dialog"
+                            className="mymodal"
+                            overlayClassName="myoverlay"
+                            closeTimeoutMS={250}>
+
+
+
+                                    <div className='search'>
+                                          <input type = 'text' className='inputtext' onChange={inputHandler1} placeholder='Search'/>
+                                          <table>{
+                                                userss.map(({id, data, p}) => (
+                                                  (() => {
+                                                    if(id.toLowerCase().includes(inputText1) && auth.currentUser.displayName !== id && p === 0){
+                                                    return (<Userlist key={id} user={auth.currentUser} username={id} lastlogin={data.timestamp} fl={p} gg={0}></Userlist>)
+                                                  }else return (<div></div>)})()))} 
+                                          </table>
+                                          </div>
+
+
+
+                            <button className="button-r" onClick={toggleModal1022}>Close</button>
+                            </Modal>
+                              
+
+
+                              
+                              </center>
                               <div className="app__posts"> 
             {
                 myposts.map(({id, post}) => (
-                  <Post key={id} postId={id} user={user} username={post.username} caption={post.caption} imageUrl={post.imageUrl} fl={2}></Post>
+                  <Post key={id} postId={id} user={user} username={post.username} caption={post.caption} imageUrl={post.imageUrl} fl={2} gg={1}></Post>
                 )) 
             }
             </div>
@@ -446,7 +566,7 @@ function App() {
                                 )) 
 
                             }
-                              <button className="button-7" onClick={toggleModal103}>Close</button>
+                              <button className="button-r" onClick={toggleModal103}>Close</button>
                             </Modal>
 
             <button className="button-6" onClick={toggleModal101}>Search</button>
@@ -472,7 +592,7 @@ function App() {
               
                 if(id.toLowerCase().includes(inputText) && auth.currentUser.displayName !== id)
            {
-                return (<Userlist key={id} user={auth.currentUser} username={id} lastlogin={data.timestamp} fl={p}></Userlist>)
+                return (<Userlist key={id} user={auth.currentUser} username={id} lastlogin={data.timestamp} fl={p} gg={1}></Userlist>)
     }
     else
                 return (<div></div>)
@@ -483,7 +603,7 @@ function App() {
       } 
       </table>
       </div>
-      <button className="button-6" onClick={toggleModal101}>Close</button>
+      <button className="button-r" onClick={toggleModal101}>Close</button>
     </Modal>
 
              <button className="button-6" onClick={toggleModal5}>Settings</button>
@@ -494,6 +614,8 @@ function App() {
                             className="mymodal"
                             overlayClassName="myoverlay"
                             closeTimeoutMS={250}>
+
+                              <button className='button-7' onClick={unregister}>Unregister</button>
                               
 {/*
                               <button className="button-7" onClick={toggleModal101}>Enable 2FA</button>
@@ -544,12 +666,12 @@ function App() {
                           <ChangePFP user={auth.currentUser}/>
                           <input type="submit" className="button-7" onClick={resetPass} value='Reset Password?'/>
 
-                          <button className="button-7" onClick={toggleModal5}>Close</button>
+                          <button className="button-7r" onClick={toggleModal5}>Close</button>
                           </Modal>
         <ImageUpload username={user.displayName}/>
         <StoryUpload username={user.displayName}/>
           <input type="submit" className="button-6" onClick={() => [auth.signOut(),window.location.reload()]} value='Logout' />
-          <TranslatorWidget sourceLanguageCode="en" className="translator"/>
+          <TranslatorWidget className={styles.buttonn} sourceLanguageCode="en"/>
           </div>
           ): (
           <div>
@@ -571,7 +693,7 @@ function App() {
                               <input type="submit" className="button-7" onClick={(e) => [signUp(e), toggleModal(e)]} value='SignUp'/>
                           </form>
                           <Login/>
-                          <button className="button-7" onClick={toggleModal}>Close</button> </center>
+                          <button className="button-7r" onClick={toggleModal}>Close</button> </center>
                           </Modal>
 
 
@@ -602,11 +724,11 @@ function App() {
                               <input type="text"  className='inputtext'  placeholder='Enter email' value={email} onChange={(e) => setEmail(e.target.value)}/><br/>
                               <input type="submit" className="button-7" onClick={(e) => [forgotPass(e), toggleModal100(e)]} value='Send Email'/>
                           </form>
-                          <button className="button-7" onClick={toggleModal100}>Close</button>
+                          <button className="button-7r" onClick={toggleModal100}>Close</button>
                                         </Modal>
-                          <button className="button-7" onClick={toggleModal1}>Close</button></center>
+                          <button className="button-7r" onClick={toggleModal1}>Close</button></center>
                           </Modal>
-                          <TranslatorWidget sourceLanguageCode="en" className="translator"/>
+                          <TranslatorWidget className={styles.buttonn} sourceLanguageCode="en"/>
         </div>
           )
         }
@@ -632,9 +754,9 @@ function App() {
                 posts.map(({id, post}) => (
                   (() => {
                     if(auth.currentUser.displayName === post.username)
-                            {return (<Post key={id} postId={id} user={user} username={post.username} caption={post.caption} imageUrl={post.imageUrl} fl={2}></Post>)}
+                            {return (<Post key={id} postId={id} user={user} username={post.username} caption={post.caption} imageUrl={post.imageUrl} fl={2} gg={1}></Post>)}
                     else
-                            {return (<Post key={id} postId={id} user={user} username={post.username} caption={post.caption} imageUrl={post.imageUrl} fl={0}></Post>)}
+                            {return (<Post key={id} postId={id} user={user} username={post.username} caption={post.caption} imageUrl={post.imageUrl} fl={0} gg={1}></Post>)}
                   })()
                 )) 
             }
@@ -660,7 +782,7 @@ function App() {
          
          {
              gposts.map(({id, post}) => (
-               <Post key={id} postId={id} user={user} username={post.username} caption={post.caption} imageUrl={post.imageUrl} fl={2}></Post>
+               <Post key={id} postId={id} user={user} username={post.username} caption={post.caption} imageUrl={post.imageUrl} fl={2} gg={0}></Post>
              )) 
          }
          </div></div>

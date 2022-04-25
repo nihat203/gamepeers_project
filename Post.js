@@ -3,9 +3,23 @@ import { db } from './firebase';
 import './Post.css'
 import { serverTimestamp } from "firebase/firestore";
 import ReactDOM from 'react-dom';
+import Modal from "react-modal";
+import Userlist from './Userlist'
 
 
-function Post( { postId, user, username, caption, imageUrl, fl } ) {
+function Post( { postId, user, username, caption, imageUrl, fl, gg } ) {
+
+  const [inputText, setInputText] = useState("");
+  let inputHandler = (e) => {
+    var lowerCase = e.target.value.toLowerCase();
+    setInputText(lowerCase);
+  };
+
+  const [isOpen, setIsOpen] = useState(false);
+  function toggleModal() {
+    setIsOpen(!isOpen);      }
+
+
   const [comments, setComments] = useState([]);
   const [comment, setComment] = useState([]);
 
@@ -18,7 +32,19 @@ function Post( { postId, user, username, caption, imageUrl, fl } ) {
       .collection("comments")
       .orderBy('timestamp','desc')
       .onSnapshot((snapshot) => {
-        setComments(snapshot.docs.map((doc) => doc.data()));
+
+        const ccc = [];
+
+        snapshot.docs.forEach(doc => 
+          {
+            ccc.push( {
+            id: doc.id,
+            comment: doc.data()
+          })
+        })
+
+        setComments(ccc)
+    
       });
     }
 
@@ -27,6 +53,19 @@ function Post( { postId, user, username, caption, imageUrl, fl } ) {
     };
 
   }, [postId]);
+
+  const [ulik, setUlik] = useState([]);
+  
+  useEffect(() => {
+    db.collection("posts").doc(postId).collection("likes").onSnapshot(snapshot => {
+      const aaa = [];
+      snapshot.docs.forEach(doc => 
+        {
+          aaa.push( doc.id )
+      })
+      setUlik(aaa);
+    })
+  }, []); 
 
 
   const postComment = (event) => {
@@ -50,6 +89,12 @@ function Post( { postId, user, username, caption, imageUrl, fl } ) {
     db.collection('follow').doc('followers').collection(username).doc(user.displayName).set({timestamp:serverTimestamp()})
   }
 
+
+  const delet = (event) => {
+    event.preventDefault();
+    db.collection('posts').doc(postId).delete()
+  }
+
   const hide = (event) => {
     event.preventDefault();
     event.target.style.display = 'none';
@@ -69,11 +114,46 @@ function Post( { postId, user, username, caption, imageUrl, fl } ) {
   useEffect(() => {
   db.collection("userpfp").doc(username).get().then((snapshot) => {
     setPFP(snapshot.data().photourl);
-  })
-
-  
+  })  
 }, []); 
 
+
+function deletc(idd)
+{
+  db.collection('posts').doc(postId).collection('comments').doc(idd).delete()
+}
+
+
+const like = (event) => {
+  event.preventDefault();
+  db.collection("posts").doc(postId).collection("likes").doc(user.displayName).set({
+    timestamp: serverTimestamp()
+  });
+}
+
+const unlike = (event) => {
+  event.preventDefault();
+  db.collection("posts").doc(postId).collection("likes").doc(user.displayName).delete()
+}
+
+
+
+const [userss, setUserss] = useState([]);
+
+  useEffect(() => {
+
+    db.collection("posts").doc(postId).collection("likes").onSnapshot(snapshot => {
+      
+          const ysers = [];
+          snapshot.docs.forEach(doc => 
+            {
+              ysers.push( doc.id )
+          
+          setUserss(ysers);
+          })  
+      })
+
+    }, []);
 
   
   return (
@@ -101,12 +181,32 @@ function Post( { postId, user, username, caption, imageUrl, fl } ) {
           : (
             fl === 2 ? (<div></div>):(
           <button
-          className="button-6"
+          className="button-r"
           type='submit'
           onClick={unfollow}>
             Unfollow
           </button>)
           )}
+
+
+          {
+          (fl === 2 && gg === 1)? 
+          (
+            <div>
+              <button
+                className="button-r"
+                type='submit'
+                onClick={delet}>
+                  Delete
+              </button>
+            </div>
+          ) : 
+          (
+            <div>
+
+            </div>
+          )
+          }
         
           
         </div>
@@ -116,14 +216,96 @@ function Post( { postId, user, username, caption, imageUrl, fl } ) {
 
         <img onError={(event) => [hide(event), errr(event)]} className="post__image" src={imageUrl}/>
         
-
-        
         <h4 className="post__text"><strong>{username}: </strong>{caption}</h4>
-        <h5 className='post__text'><strong>Comments:</strong></h5>
+
+        {(() => {
+                    if(user)
+                    {
+                      if(ulik.includes(user.displayName))
+                      { return (
+                        <c>
+                        &nbsp;&nbsp;<button className='buttonn' onClick={unlike}>
+                          <img src='https://firebasestorage.googleapis.com/v0/b/projecc-af5ce.appspot.com/o/sitedata%2Fa.png?alt=media&token=37e190ee-cd88-4f53-be07-dac0f6b8baac' width={35} height={25}/></button>
+                          
+                        </c>
+                       )}
+                       else
+                       return (<c>&nbsp;&nbsp;<button className='buttonn' onClick={like}>
+                          <img src='https://firebasestorage.googleapis.com/v0/b/projecc-af5ce.appspot.com/o/sitedata%2FYouTube-Red-Like-Button-1.png?alt=media&token=349df9fd-1b29-4a92-840b-c819680ca8d3' width={35} height={25}/></button>
+                      
+                      </c>
+                      )
+                      }
+                      else{
+                        return (<c>&nbsp;&nbsp;&nbsp;&nbsp;</c>)
+                      }
+          })()}
+
+
+          <button className='buttonn' onClick={toggleModal}>
+            <c><b>{ulik.length}</b> likes</c>
+
+        </button>
+
+
+
+                            <Modal
+                            isOpen={isOpen}
+                            onRequestClose={toggleModal}
+                            contentLabel="My dialog"
+                            className="mymodal"
+                            overlayClassName="myoverlay"
+                            closeTimeoutMS={250}> 
+                            
+                            <div className='search'>
+                                          <input type = 'text' className='inputtext' onChange={inputHandler} placeholder='Search'/>
+                                          <table>{
+
+                                                userss.map((id) => (
+                                                  (() => {
+                                                    if(id.toLowerCase().includes(inputText) ){
+                                                    return (
+                                                
+                                                    <tr>{id}</tr>
+                                                    
+                                                    )
+                                                  }
+                                                  
+                                                  
+                                                  else
+                                                  
+                                                  {
+                                                    
+                                                    return (<div></div>)
+                                                  
+                                                  }
+                                                  
+                                                  })()))} 
+
+
+                                          </table>
+                                          </div>
+
+                            <button className="button-r" onClick={toggleModal}>Close</button>
+                            </Modal>
+
+
+
+
+        <h5 className='post__text'><strong>Comments - {comments.length} :</strong></h5>
         <div className='post__comments'>
         {
-          comments.map((comment) => (
+          comments.map(({id,comment}) => (
             <p>
+              {
+                user && ((user.displayName === comment.username) || (user.displayName === username)) ? (
+                  <button className='buttonn' onClick={() => [deletc(id)]}>
+                    <img src="https://firebasestorage.googleapis.com/v0/b/projecc-af5ce.appspot.com/o/sitedata%2FRed-Close-Button-Transparent.png?alt=media&token=e5463082-98d1-4cc6-b2a1-4d4b67304647" width="15" height="15"/>
+                    </button>
+                ):(
+                  <div></div>
+                )
+              }
               <b>{comment.username}:</b> {comment.text}
             </p>
           ))

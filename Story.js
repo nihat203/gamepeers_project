@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import Modal from "react-modal";
 import "./story.css";
+import "./button-7.css"
 
 
 function Story( { username,  imageUrl } ) {
@@ -40,7 +41,7 @@ function Story( { username,  imageUrl } ) {
       { /* <video onError={(event) => event.target.style.display = 'none'} controls className="post__image" muted 
          src={imageUrl} type="video/mp4">
         </video>*/}
-                <button onClick={toggleModal7}>Close</button>
+                <button className="button-r" onClick={toggleModal7}>Close</button>
                           </Modal>  
                           
                           

@@ -76,7 +76,7 @@ function ImageUpload({username}) {
                 <input type='file' className='button-7' onChange={handleChange}/><br/>
                 <input type='submit' value='Upload' className='button-7' onClick={handleUpload}/>
                 <br/>
-                <button onClick={toggleModal2} className='button-7'>Close</button>
+                <button onClick={toggleModal2} className='button-7r'>Close</button>
                           </Modal>
                           </a>
     )

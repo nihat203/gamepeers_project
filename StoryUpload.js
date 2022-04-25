@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { db,storage } from './firebase';
 import { serverTimestamp } from "firebase/firestore";
 import Modal from "react-modal";
+import './button-7.css'
 
 function StoryUpload({username}) {
     const [image, setImage] = useState(null);
@@ -69,7 +70,7 @@ function StoryUpload({username}) {
                 <input type='file' className='button-7' onChange={handleChange}/><br/>
                 <input type='submit' className='button-7' value='Upload' onClick={handleUpload}/>
                 <br/>
-                <button onClick={toggleModal6} className='button-7'>Close</button>
+                <button onClick={toggleModal6} className='button-7r'>Close</button>
                           </Modal>
                           </a>
     )
